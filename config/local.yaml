@@ -1,0 +1,7 @@
+database:
+  address: "postgres://postgres:test@localhost:15432/todo?sslmode=disable"
+server:
+  port: 9000
+  debug: true
+metrics:
+  tracingEnable: false
