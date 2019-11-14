@@ -1,0 +1,422 @@
+swagger: "2.0"
+definitions:
+  Error:
+    properties:
+      label:
+        type: string
+      message:
+        type: string
+    type: object
+  Errors:
+    properties:
+      errors:
+        items:
+          $ref: '#/definitions/Error'
+        type: array
+    type: object
+  ListTodoResponse:
+    type: object
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/TodoResponse'
+        type: array
+      has_more:
+        type: boolean
+      total_count:
+        type: integer
+  NewTodo:
+    properties:
+      title:
+        type: string
+      due_date:
+        type: string
+    required:
+      - title
+      - due_date
+    type: object
+  ListComment:
+    type: array
+    items:
+      $ref: '#/definitions/Comment'
+  Comment:
+    properties:
+      id:
+        type: integer
+      text:
+        type: string
+  Label:
+    properties:
+      id:
+        type: integer
+      text:
+        type: string
+      color:
+        type: string
+  ListLabel:
+    type: array
+    items:
+      $ref: '#/definitions/Label'
+  TodoResponse:
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+      due_date:
+        type: string
+      done:
+        type: boolean
+    type: object
+info:
+  contact:
+    email: maksim@terekhin.me
+    name: Maksim Terekhin
+  description: Simple Todo Service
+  title: Simple Todo Service
+  version: "0.0.1"
+paths:
+  /api/v1/todos:
+    get:
+      description: list of all todos
+      parameters:
+        - description: 'number of results to fetch, default: 20'
+          in: query
+          name: limit
+          type: integer
+        - description: 'offset to fetch from, default: 0'
+          in: query
+          name: offset
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ListTodoResponse'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+    post:
+      consumes:
+        - application/json
+      description: Add new todo
+      parameters:
+        - description: content of request
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/NewTodo'
+            type: object
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Comment'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "404": {}
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+  /api/v1/todos/{id}:
+    delete:
+      consumes:
+        - application/json
+      description: deletes todo
+      parameters:
+        - description: id of todo
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "204": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "404": {}
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+    get:
+      description: get todo by id
+      parameters:
+        - description: id of todo
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/TodoResponse'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "404": {}
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+    put:
+      consumes:
+        - application/json
+      description: Update existing todo
+      parameters:
+        - description: id of todo
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: content of request
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/NewTodo'
+            type: object
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/TodoResponse'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "404": {}
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+  /api/v1/todos/{id}/comments:
+    get:
+      consumes:
+        - application/json
+      description: List of comments of todo
+      parameters:
+        - description: id of the todo
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: List of comments
+          schema:
+            $ref: '#/definitions/ListComment'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "404": {}
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+    post:
+      consumes:
+        - application/json
+      description: Add comment to todo
+      parameters:
+        - description: id of the todo
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: content of request
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/Comment'
+            type: object
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Comment'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "404": {}
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+  /api/v1/todos/{id}/comments/{commentId}:
+    delete:
+      consumes:
+        - application/json
+      description: deletes comment of todo
+      parameters:
+        - description: id of todo
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: comment id of todo
+          in: path
+          name: commentId
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "204": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "404": {}
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+  /api/v1/todos/{id}/labels:
+    get:
+      consumes:
+        - application/json
+      description: List of labels of todo
+      parameters:
+        - description: id of the todo
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: List of labels
+          schema:
+            $ref: '#/definitions/ListLabel'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "404": {}
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+    post:
+      consumes:
+        - application/json
+      description: Add label to todo
+      parameters:
+        - description: id of the todo
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: content of request
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/Label'
+            type: object
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Label'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "404": {}
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+  /api/v1/todos/{id}/labels/{labelId}:
+    delete:
+      consumes:
+        - application/json
+      description: deletes label of todo
+      parameters:
+        - description: id of todo
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: label id of todo
+          in: path
+          name: labelId
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "204": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "404": {}
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
