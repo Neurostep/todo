@@ -5,7 +5,6 @@ import (
 	"flag"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 
 	"github.com/go-kit/kit/log"
@@ -20,28 +19,9 @@ import (
 )
 
 func main() {
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
-
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	defer cancelFunc()
 
-	var waitStopping sync.WaitGroup
-	waitStopping.Add(1)
-	go func() {
-		Run(ctx)
-		waitStopping.Done()
-	}()
-
-	select {
-	case <-ctx.Done():
-	case <-interrupt:
-		cancelFunc()
-	}
-	waitStopping.Wait()
-}
-
-func Run(ctx context.Context) {
 	logger := log.NewJSONLogger(log.NewSyncWriter(os.Stdout))
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
 
@@ -77,7 +57,6 @@ func Run(ctx context.Context) {
 	if err != nil {
 		logger.Log("error", "failed to setup prometheus monitoring", "cause", err)
 		prometheusExporter = nil
-		// continue
 	} else {
 		defer func() {
 			view.UnregisterExporter(prometheusExporter)
@@ -100,8 +79,36 @@ func Run(ctx context.Context) {
 	s := server.New(serverCfg)
 
 	group, groupCtx := errgroup.WithContext(ctx)
-	group.Go(func() error { return s.Start(groupCtx) })
+
+	// server start
+	group.Go(func() error {
+		err := s.Start(groupCtx)
+
+		return err
+	})
+
+	// signal handlers
+	interrupt := make(chan os.Signal, 2)
+	cancel := make(chan struct{})
+	defer close(interrupt)
+
+	group.Go(func() error {
+		signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
+
+		select {
+		case sig := <-interrupt:
+			logger.Log("event", "captured signal", sig)
+			cancelFunc()
+		case <-groupCtx.Done():
+		case <-cancel:
+		}
+
+		return nil
+	})
+
 	if err := group.Wait(); err != nil {
 		logger.Log("event", "error", "cause", err)
+		close(cancel)
+		signal.Stop(interrupt)
 	}
 }
