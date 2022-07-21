@@ -59,7 +59,10 @@ func New(c Config) *api {
 	}
 	r.Server = &http.Server{
 		Addr:    fmt.Sprintf(":%d", c.Port),
-		Handler: handler,
+		Handler: http.TimeoutHandler(handler, time.Second, ""),
+
+		ReadTimeout:  time.Second,
+		WriteTimeout: time.Second * 2,
 	}
 
 	return r
