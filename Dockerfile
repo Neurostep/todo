@@ -1,4 +1,4 @@
-FROM golang:1.13.4 AS builder
+FROM golang:1.18.4 AS builder
 WORKDIR /src
 COPY Makefile go.mod go.sum ./
 RUN make install
