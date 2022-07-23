@@ -75,7 +75,13 @@ func (r *api) routes() *gin.Engine {
 	router.GET("/healthz", r.healthz)
 	router.GET("/readyz", r.readyz)
 
-	apiGroup := router.Group("/api/v1")
+	// auth endpoints
+	router.POST("/signin", r.signin)
+	router.GET("/refresh", r.refresh)
+
+	// API endpoints
+	apiGroup := router.Group("/api/v1", authMiddleware)
+
 	monitoredAPIGroup := metrics.WrapGinRouter(apiGroup)
 	monitoredAPIGroup.Use(requireContentType(r.logger, "application/json"))
 
