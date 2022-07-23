@@ -1,4 +1,10 @@
 swagger: "2.0"
+basePath: /
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
 definitions:
   Error:
     properties:
@@ -14,6 +20,25 @@ definitions:
           $ref: '#/definitions/Error'
         type: array
     type: object
+  Signin:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+    required:
+      - username
+      - password
+  SigninResponse:
+    type: object
+    properties:
+      token:
+        type: string
+        description: Token string to authorize API requests
+      expires:
+        type: string
+        description: Timestamp when the provided token will be expired
   ListTodoResponse:
     type: object
     properties:
@@ -76,8 +101,74 @@ info:
   title: Simple Todo Service
   version: "0.0.1"
 paths:
+  /signin:
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      description: Sign in by the pair username & password
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "401":
+          description: Not Authorized request
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "503":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "200":
+          description: Authorized request
+          schema:
+            $ref: '#/definitions/SigninResponse'
+            type: object
+      parameters:
+        - description: Username & password
+          in: body
+          name: username
+          required: true
+          schema:
+            $ref: '#/definitions/Signin'
+            type: object
+  /refresh:
+    get:
+      security:
+        - Bearer: []
+      description: Refresh authorization token
+      produces:
+        - application/json
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "401":
+          description: Not Authorized request
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "503":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Errors'
+            type: object
+        "200":
+          description: Authorized request
+          schema:
+            $ref: '#/definitions/SigninResponse'
+            type: object
   /api/v1/todos:
     get:
+      security:
+        - Bearer: []
       description: list of all todos
       parameters:
         - description: 'number of results to fetch, default: 20'
@@ -101,12 +192,16 @@ paths:
           schema:
             $ref: '#/definitions/Errors'
             type: object
+        "401":
+          description: "Not authorized access"
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/Errors'
             type: object
     post:
+      security:
+        - Bearer: []
       consumes:
         - application/json
       description: Add new todo
@@ -131,6 +226,8 @@ paths:
           schema:
             $ref: '#/definitions/Errors'
             type: object
+        "401":
+          description: "Not authorized access"
         "404": {}
         "500":
           description: Internal Server Error
@@ -139,6 +236,8 @@ paths:
             type: object
   /api/v1/todos/{id}:
     delete:
+      security:
+        - Bearer: []
       consumes:
         - application/json
       description: deletes todo
@@ -157,6 +256,8 @@ paths:
           schema:
             $ref: '#/definitions/Errors'
             type: object
+        "401":
+          description: "Not authorized access"
         "404": {}
         "500":
           description: Internal Server Error
@@ -164,6 +265,8 @@ paths:
             $ref: '#/definitions/Errors'
             type: object
     get:
+      security:
+        - Bearer: [ ]
       description: get todo by id
       parameters:
         - description: id of todo
@@ -184,6 +287,8 @@ paths:
           schema:
             $ref: '#/definitions/Errors'
             type: object
+        "401":
+          description: "Not authorized access"
         "404": {}
         "500":
           description: Internal Server Error
@@ -191,6 +296,8 @@ paths:
             $ref: '#/definitions/Errors'
             type: object
     put:
+      security:
+        - Bearer: [ ]
       consumes:
         - application/json
       description: Update existing todo
@@ -220,6 +327,8 @@ paths:
           schema:
             $ref: '#/definitions/Errors'
             type: object
+        "401":
+          description: "Not authorized access"
         "404": {}
         "500":
           description: Internal Server Error
@@ -228,6 +337,8 @@ paths:
             type: object
   /api/v1/todos/{id}/comments:
     get:
+      security:
+        - Bearer: [ ]
       consumes:
         - application/json
       description: List of comments of todo
@@ -250,6 +361,8 @@ paths:
           schema:
             $ref: '#/definitions/Errors'
             type: object
+        "401":
+          description: "Not authorized access"
         "404": {}
         "500":
           description: Internal Server Error
@@ -257,6 +370,8 @@ paths:
             $ref: '#/definitions/Errors'
             type: object
     post:
+      security:
+        - Bearer: [ ]
       consumes:
         - application/json
       description: Add comment to todo
@@ -286,6 +401,8 @@ paths:
           schema:
             $ref: '#/definitions/Errors'
             type: object
+        "401":
+          description: "Not authorized access"
         "404": {}
         "500":
           description: Internal Server Error
@@ -294,6 +411,8 @@ paths:
             type: object
   /api/v1/todos/{id}/comments/{commentId}:
     delete:
+      security:
+        - Bearer: [ ]
       consumes:
         - application/json
       description: deletes comment of todo
@@ -317,6 +436,8 @@ paths:
           schema:
             $ref: '#/definitions/Errors'
             type: object
+        "401":
+          description: "Not authorized access"
         "404": {}
         "500":
           description: Internal Server Error
@@ -325,6 +446,8 @@ paths:
             type: object
   /api/v1/todos/{id}/labels:
     get:
+      security:
+        - Bearer: [ ]
       consumes:
         - application/json
       description: List of labels of todo
@@ -348,12 +471,16 @@ paths:
             $ref: '#/definitions/Errors'
             type: object
         "404": {}
+        "401":
+          description: "Not authorized access"
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/Errors'
             type: object
     post:
+      security:
+        - Bearer: [ ]
       consumes:
         - application/json
       description: Add label to todo
@@ -383,6 +510,8 @@ paths:
           schema:
             $ref: '#/definitions/Errors'
             type: object
+        "401":
+          description: "Not authorized access"
         "404": {}
         "500":
           description: Internal Server Error
@@ -391,6 +520,8 @@ paths:
             type: object
   /api/v1/todos/{id}/labels/{labelId}:
     delete:
+      security:
+        - Bearer: [ ]
       consumes:
         - application/json
       description: deletes label of todo
@@ -414,6 +545,8 @@ paths:
           schema:
             $ref: '#/definitions/Errors'
             type: object
+        "401":
+          description: "Not authorized access"
         "404": {}
         "500":
           description: Internal Server Error
