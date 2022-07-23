@@ -79,18 +79,13 @@ func (r *api) refresh(c *gin.Context) {
 	defer span.End()
 	logger := logging.FromContext(ctx, r.logger)
 
-	cookie, err := c.Request.Cookie("token")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			respondErrors(c, logger, http.StatusUnauthorized, newError("refresh", err.Error()))
-			return
-		}
-		respondErrors(c, logger, http.StatusBadRequest, newError("refresh", err.Error()))
+	tokenString := c.GetHeader("Authorization")
+	if tokenString == "" {
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
-	tknStr := cookie.Value
 	claims := &Claims{}
-	tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (interface{}, error) {
+	tkn, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return jwtKey, nil
 	})
 	if !tkn.Valid {
@@ -114,14 +109,14 @@ func (r *api) refresh(c *gin.Context) {
 	expirationTime := time.Now().Add(5 * time.Minute)
 	claims.ExpiresAt = &jwt.NumericDate{Time: expirationTime}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtKey)
+	tokenSignedString, err := token.SignedString(jwtKey)
 	if err != nil {
 		respondErrors(c, logger, http.StatusInternalServerError, newError("refresh", err.Error()))
 		return
 	}
 
 	c.JSON(http.StatusOK, AuthResponse{
-		Token:   tokenString,
+		Token:   tokenSignedString,
 		Expires: expirationTime.Unix(),
 	})
 }
