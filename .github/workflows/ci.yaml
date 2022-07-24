@@ -1,0 +1,27 @@
+name: ToDo application CI
+
+on: push
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-go@v3
+        name: Setup Go
+        with:
+          go-version: 1.18
+          cache: true
+
+      - name: Build
+        run: make build-release
+
+      - name: Test
+        run: make go-test
+
+      - name: Fmt
+        run: make go-fmt-chk
+
+      - name: Go vet
+        run: make go-vet
