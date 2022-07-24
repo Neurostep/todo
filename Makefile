@@ -53,6 +53,9 @@ go-vet: $(TMP_DIR)
 		echo "\033[32m[go vet] Everything is fine\033[0m"; \
 	fi
 
+$(TMP_DIR):
+	mkdir -p $(TMP_DIR)
+
 go-fmt-chk:
 	@ if [ -n "$$(gofmt -l .)" ]; then \
 		echo "\033[31m[gofmt] some files need to be formatted:\n$$(gofmt -l .)\033[0m"; \
