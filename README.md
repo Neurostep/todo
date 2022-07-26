@@ -19,7 +19,7 @@ Once you have it installed, please follow steps:
 2. run `docker-compose build`
 3. run `docker-compose up -d`
 
-The application will be exposed on port 19000. So, go to the [http://localhost:19001/api/v1/todos](http://localhost:19001/api/v1/todos) to check
+The application will be exposed on port 19000. So, go to the [http://localhost:19000/api/v1/todos](http://localhost:19000/api/v1/todos) to check
 If the application run correctly, you can start playing with the API. Use swaggerfile mentioned above as a reference.
 
 ### JWT based authorization
