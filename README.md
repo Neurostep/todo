@@ -8,7 +8,7 @@ Features:
 * Add a comment for the TODO
 * Add a label for TODO
 
-You can find an API spec in the [https://github.com/Neurostep/todo/api/swagger.yaml](https://github.com/Neurostep/todo/api/swagger.yaml)
+You can find an API spec in the [api/swagger.yaml](https://github.com/Neurostep/todo/blob/83a54c9984584ef3957ed74f88319e196fbb75ef/api/swagger.yaml)
 
 ## Run the application locally
 
