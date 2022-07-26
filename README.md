@@ -22,6 +22,39 @@ Once you have it installed, please follow steps:
 The application will be exposed on port 19000. So, go to the [http://localhost:19001/api/v1/todos](http://localhost:19001/api/v1/todos) to check
 If the application run correctly, you can start playing with the API. Use swaggerfile mentioned above as a reference.
 
+### JWT based authorization
+
+The application provides an API that protected by a very simple JWT autherization. For simplicity, the application
+use hard-coded user with the following credentials: username - `user`, password - `password`.
+
+To authorize requests to the API, we have to get the token by calling the `/signin` endpoint with appropriate
+credentials. For example:
+
+**Please note**: the output may differ
+
+```shell
+curl -X POST http://localhost:19000/signin --data '{"username":"user","password":"password"}'
+
+{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIiLCJleHAiOjE2NTg4NTUwMTV9.JligE1ZNoARJ1Uf8IulyEBbQwE5QdHDdLh7gYScTCYw","expires":1658855015}
+```
+
+Then we can use this token to authorize requests to our API:
+
+```shell
+curl -X GET -H 'Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIiLCJleHAiOjE2NTg4NTUwMTV9.JligE1ZNoARJ1Uf8IulyEBbQwE5QdHDdLh7gYScTCYw' http://localhost:19000/api/v1/todos
+
+{"has_more":false,"total_count":0,"data":[]}
+```
+
+`expires` contains the timestamp that we can use to identify when the token will be expired. To renew the token, we
+can call `/refresh` and get back renewed token (we have 30 seconds window to renew it):
+
+```shell
+curl -X GET -H "Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIiLCJleHAiOjE2NTg4NTUwMTV9.JligE1ZNoARJ1Uf8IulyEBbQwE5QdHDdLh7gYScTCYw' http://localhost:19000/refresh
+
+{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIiLCJleHAiOjE2NTg4NTY5MzV9.6LCtnVntqmn2i5fbLakM6Y13T6HztKi2nfkc4-IUL2w", "expires":1658856935}
+```
+
 ## Deployment
 
 The application delivered within staged Dockerfile. Thus we can easily use different strategies to deploy it.
