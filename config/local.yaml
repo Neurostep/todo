@@ -3,5 +3,6 @@ database:
 server:
   port: 9000
   debug: true
+  authEnabled: false
 metrics:
   tracingEnable: false

@@ -71,6 +71,7 @@ func main() {
 	serverCfg := server.Config{
 		Debug:              cfg.Server.Debug,
 		Port:               cfg.Server.Port,
+		AuthEnabled:        cfg.Server.AuthEnabled,
 		DB:                 db,
 		TodoService:        todoService,
 		Logger:             log.With(logger, "service", "http"),

@@ -21,8 +21,9 @@ type (
 	}
 
 	Server struct {
-		Debug bool `yaml:"debug"`
-		Port  int  `yaml:"port"`
+		Debug       bool `yaml:"debug"`
+		Port        int  `yaml:"port"`
+		AuthEnabled bool `yaml:"authEnabled"`
 	}
 
 	Metrics struct {

@@ -24,6 +24,7 @@ const timeout = 2 // seconds
 type (
 	Config struct {
 		Debug       bool
+		AuthEnabled bool
 		Port        int `validate:"required"`
 		TodoService *todo.Service
 		DB          *gorm.DB
@@ -80,7 +81,12 @@ func (r *api) routes() *gin.Engine {
 	router.GET("/refresh", r.refresh)
 
 	// API endpoints
-	apiGroup := router.Group("/api/v1", authMiddleware)
+	var apiGroup *gin.RouterGroup
+	if r.conf.AuthEnabled {
+		apiGroup = router.Group("/api/v1", authMiddleware)
+	} else {
+		apiGroup = router.Group("/api/v1")
+	}
 
 	monitoredAPIGroup := metrics.WrapGinRouter(apiGroup)
 	monitoredAPIGroup.Use(requireContentType(r.logger, "application/json"))
