@@ -1,0 +1,656 @@
+
+	"info": {
+		"_postman_id": "bfc0d606-15c4-4d02-9205-414ae8f9d57f",
+		"name": "Todo application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20167223"
+	},
+	"item": [
+		{
+			"name": "Вывести список всех todos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"pm.test(\"Response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response has the required fields\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('object');\r",
+							"    pm.expect(responseData.has_more).to.exist;\r",
+							"    pm.expect(responseData.total_count).to.exist;\r",
+							"    pm.expect(responseData.data).to.exist;\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"id is a non-negative integer\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('object');\r",
+							"    pm.expect(responseData.data).to.be.an('array');\r",
+							"\r",
+							"    responseData.data.forEach(function (item) {\r",
+							"        pm.expect(item.id).to.be.a('number');\r",
+							"        pm.expect(item.id).to.be.at.least(0);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Title is a non-empty string\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('object');\r",
+							"    pm.expect(responseData.data).to.be.an('array');\r",
+							"\r",
+							"    responseData.data.forEach(function (item) {\r",
+							"        pm.expect(item.title).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Title should not be empty\");\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"The due_date is in a valid date format\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData.data).to.be.an('array').and.to.have.lengthOf.at.least(1);\r",
+							"\r",
+							"    responseData.data.forEach(function (todo) {\r",
+							"        pm.expect(todo.due_date).to.match(/^\\d{4}-\\d{2}-\\d{2}$/);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:19000/api/v1/todos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "19000",
+					"path": [
+						"api",
+						"v1",
+						"todos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создать новый todo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"pm.test(\"Response status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"The id should be a positive integer\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('object');\r",
+							"    pm.expect(responseData.id).to.exist.and.to.be.a('number');\r",
+							"    pm.expect(responseData.id).to.be.above(0, \"The id should be a positive integer\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Title is a non-empty string\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('object');\r",
+							"    pm.expect(responseData.title).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Title should not be empty\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"The due_date is in a valid date format\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('object');\r",
+							"    pm.expect(responseData.due_date).to.match(/^\\d{4}-\\d{2}-\\d{2}$/);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"The 'done' property should be a boolean value\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData.done).to.be.a('boolean');\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response status code is 201\", function () {\r",
+							"    pm.expect(pm.response.code).to.equal(201);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Validate id, title, due_date, and done properties are present in the response\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('object');\r",
+							"    pm.expect(responseData).to.have.property('id');\r",
+							"    pm.expect(responseData).to.have.property('title');\r",
+							"    pm.expect(responseData).to.have.property('due_date');\r",
+							"    pm.expect(responseData).to.have.property('done');\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Id is a positive integer\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData.id).to.be.a('number').and.to.be.greaterThan(0);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Title is a non-empty string\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('object');\r",
+							"    pm.expect(responseData.title).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Title should not be empty\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Due date is in a valid date format\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('object');\r",
+							"    pm.expect(responseData.due_date).to.match(/^\\d{4}-\\d{2}-\\d{2}$/);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"title\": \"andreyex\", \"due_date\": \"2023-07-12\"}"
+				},
+				"url": {
+					"raw": "http://localhost:19000/api/v1/todos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "19000",
+					"path": [
+						"api",
+						"v1",
+						"todos"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Информация по todo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response has the required fields\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('object');\r",
+							"    pm.expect(responseData.has_more).to.exist;\r",
+							"    pm.expect(responseData.total_count).to.exist;\r",
+							"    pm.expect(responseData.data).to.exist;\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"id is a non-negative integer\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('object');\r",
+							"    pm.expect(responseData.data).to.be.an('array');\r",
+							"\r",
+							"    responseData.data.forEach(function (item) {\r",
+							"        pm.expect(item.id).to.be.a('number');\r",
+							"        pm.expect(item.id).to.be.at.least(0);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Title is a non-empty string\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('object');\r",
+							"    pm.expect(responseData.data).to.be.an('array');\r",
+							"\r",
+							"    responseData.data.forEach(function (item) {\r",
+							"        pm.expect(item.title).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Title should not be empty\");\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"The due_date is in a valid date format\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData.data).to.be.an('array').and.to.have.lengthOf.at.least(1);\r",
+							"\r",
+							"    responseData.data.forEach(function (todo) {\r",
+							"        pm.expect(todo.due_date).to.match(/^\\d{4}-\\d{2}-\\d{2}$/);\r",
+							"    });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:19000/api/v1/todos/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "19000",
+					"path": [
+						"api",
+						"v1",
+						"todos",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Удалить todo",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:19000/api/v1/todos/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "19000",
+					"path": [
+						"api",
+						"v1",
+						"todos",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Список комментариев к todo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response status code is 200\", function () {\r",
+							"    pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response is an array with at least one element\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('array');\r",
+							"    pm.expect(responseData).to.have.lengthOf.at.least(1);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Validate the 'id' field in each comment object\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('array').that.is.not.empty;\r",
+							"\r",
+							"    responseData.forEach(function (comment) {\r",
+							"        pm.expect(comment.id).to.exist.and.to.be.a('number');\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Validate 'text' field in each comment object is a non-empty string\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('array').that.is.not.empty;\r",
+							"\r",
+							"    responseData.forEach(function (comment) {\r",
+							"        pm.expect(comment).to.be.an('object');\r",
+							"        pm.expect(comment.text).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:19000/api/v1/todos/4/comments",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "19000",
+					"path": [
+						"api",
+						"v1",
+						"todos",
+						"4",
+						"comments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Добавить комментарий к todo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"pm.test(\"Response status code is 500\", function () {\r",
+							"    pm.expect(pm.response.code).to.equal(500);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Validate the errors array\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData.errors).to.exist.and.to.be.an('array').and.to.have.lengthOf.at.least(1, \"Errors array should not be empty\");\r",
+							"    responseData.errors.forEach(function (error) {\r",
+							"        pm.expect(error.label).to.exist.and.to.be.a('string', \"Error label should be a string\");\r",
+							"        pm.expect(error.message).to.exist.and.to.be.a('string', \"Error message should be a string\");\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Label is a non-empty string in the errors array\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('object');\r",
+							"    pm.expect(responseData.errors).to.be.an('array');\r",
+							"\r",
+							"    responseData.errors.forEach(function (error) {\r",
+							"        pm.expect(error.label).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Label should not be empty\");\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Message in errors array is a non-empty string\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData.errors).to.exist.and.to.be.an('array');\r",
+							"\r",
+							"    responseData.errors.forEach(function (error) {\r",
+							"        pm.expect(error.message).to.exist.and.to.be.a('string').and.to.not.be.empty;\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response time is in an acceptable range\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"text\": \"andreyex\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:19000/api/v1/todos/4/comments",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "19000",
+					"path": [
+						"api",
+						"v1",
+						"todos",
+						"4",
+						"comments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Удалить комментарий",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:19000/api/v1/todos/4/comments/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "19000",
+					"path": [
+						"api",
+						"v1",
+						"todos",
+						"4",
+						"comments",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "список labels к todo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"pm.test(\"Response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Validate the labels array\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('array');\r",
+							"\r",
+							"    responseData.forEach(function (label) {\r",
+							"        pm.expect(label).to.be.an('object');\r",
+							"        pm.expect(label.id).to.exist.and.to.be.a('number');\r",
+							"        pm.expect(label.text).to.exist.and.to.be.a('string');\r",
+							"        pm.expect(label.color).to.exist.and.to.be.a('string');\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Each label object has the required fields\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('array').and.to.have.lengthOf.at.least(1, \"Array should not be empty\");\r",
+							"\r",
+							"    responseData.forEach(function (label) {\r",
+							"        pm.expect(label).to.have.property('id').that.is.a('number');\r",
+							"        pm.expect(label).to.have.property('text').that.is.a('string');\r",
+							"        pm.expect(label).to.have.property('color').that.is.a('string');\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"id is a non-negative integer\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('array');\r",
+							"\r",
+							"    responseData.forEach(function (label) {\r",
+							"        pm.expect(label.id).to.be.a('number').and.to.be.at.least(0);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Text is a non-empty string\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(responseData).to.be.an('array').that.is.not.empty;\r",
+							"    responseData.forEach(function (label) {\r",
+							"        pm.expect(label.text).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:19000/api/v1/todos/4/labels",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "19000",
+					"path": [
+						"api",
+						"v1",
+						"todos",
+						"4",
+						"labels"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Добавить labels к todo",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"text\": \"andreyex\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:19000/api/v1/todos/4/labels",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "19000",
+					"path": [
+						"api",
+						"v1",
+						"todos",
+						"4",
+						"labels"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Удалить labels",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:19000/api/v1/todos/4/labels/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "19000",
+					"path": [
+						"api",
+						"v1",
+						"todos",
+						"4",
+						"labels",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
